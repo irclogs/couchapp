@@ -6,7 +6,7 @@ is the shape of the messages (a document in couchdb parlance).
 
 Each message is a json document:
 
-```
+```json
 {
   "message": "lorem ipsum",
   "sender": "johndo",
@@ -26,7 +26,7 @@ Some benefits of couchdb that we get for free are:
 * it can also serve static web pages (a webapp), that can then access the API (a couchapp)
 * supports change notifications via longpoll or eventsource
 
-# howto
+# HowTo
 
 To setup this couchapp, add your frontend of choice in the `_attachments/` directory, and just run:
 
@@ -36,7 +36,67 @@ couchapp push . https://your-couchdb-server.example.net/
 
 # API
 
-… FIXME …
+Global setup:
+```js
+const baseUrl = new URL("https://irc.softver.org.mk/");
+```
+
+List of channels:
+```js
+const listChannels = new URL("/ddoc/_view/channel", baseUrl);
+query = new URLSearchParams({"update_seq": "true", "reduce": "true", "group_level": "1"});
+listChannels.search = query.toString();
+await fetch(listChannels, {
+    "credentials": "omit",
+    "method": "GET",
+    "mode": "cors"
+});
+```
+
+A page of last 100 message for a channel:
+```js
+const last100 = new URL("/ddoc/_view/channel", baseUrl);
+query = {
+  "limit": 100,
+  "include_docs": true,
+  "update_seq": true,
+  "reduce": false,
+  "descending": true,
+  "startkey": ["lugola", {}],
+  "endkey": ["lugola", 0],
+};
+
+res = await fetch(last100, {
+    credentials: "omit",
+    mode: "cors",
+    method: "POST",
+    body: JSON.stringify(query),
+    headers: {'Content-Type': 'application/json'}
+});
+
+data = await res.json();
+update_seq = data.update_seq
+```
+
+Get a feed of new messages since the last page (you need the update_seq from the previous request):
+```js
+const feedUrl = new URL("/api/_changes", baseUrl);
+query = new URLSearchParams({feed: "longpoll", timeout: "90000", include_docs: "true",
+                    filter: "log/channel", channel: "lugola",
+                    since: update_seq
+});
+feedUrl.search = query.toString();
+
+res = await fetch(feedUrl, {
+    "credentials": "omit",
+    "method": "GET",
+    "mode": "cors"
+});
+
+data = await res.json();
+update_seq = data.last_seq
+```
+This can be run in a loop, to get even newer messages as they appear.
 
 
 # References:
