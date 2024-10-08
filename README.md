@@ -78,17 +78,18 @@ update_seq = data.update_seq
 
 Get a feed of new messages since the last page (you need the update_seq from the previous request):
 ```js
-const feedUrl = new URL("/api/_changes", baseUrl);
-query = new URLSearchParams({feed: "longpoll", timeout: "90000", include_docs: "true",
-                    filter: "log/channel", channel: "lugola",
-                    since: update_seq
+const feedUrl = new URL("/irclog/_changes", baseUrl);
+const query = new URLSearchParams({feed: "longpoll", timeout: "90000", include_docs: "true",
+                    filter: "_selector", since: update_seq
 });
 feedUrl.search = query.toString();
 
 res = await fetch(feedUrl, {
-    "credentials": "omit",
-    "method": "GET",
-    "mode": "cors"
+    credentials: "omit",
+    method: "POST",
+    mode: "cors",
+    headers: {"content-type":"application/json"},
+    body: JSON.stringify({selector: {channel: "spodeli"}}),
 });
 
 data = await res.json();
