@@ -28,17 +28,15 @@ Some benefits of couchdb that we get for free are:
 
 # HowTo
 
-To setup this couchapp, add your frontend of choice in the `_attachments/` directory, and just run:
-
 ```sh
-couchapp push . https://your-couchdb-server.example.net/
+uvx --from CMSCouchapp couchapp push -p $PWD -c http://admin:password@localhost:5984/irclog
 ```
 
 # API
 
 Global setup:
 ```js
-const baseUrl = new URL("https://irc.softver.org.mk/");
+const baseUrl = new URL("https://db.softver.org.mk/irclog");
 ```
 
 List of channels:
@@ -106,3 +104,4 @@ This can be run in a loop, to get even newer messages as they appear.
 * [a bot and its plugin that logs messages to couchdb](https://github.com/gdamjan/erlang-irc-bot-skopjehacklab/blob/master/src/ircbot_plugin_couch_log.erl)
 * [webapp implementations in different frontend frameworks](https://github.com/irclogs)
 * [cli access to the logs](https://github.com/irclogs/cli)
+* [uvx](https://docs.astral.sh/uv/#tool-management)
