@@ -9,7 +9,7 @@
  */
 
 function validate_doc_update(newDoc, oldDoc, userCtx) {
-  if (userCtx.name == "irclog" || userCtx.roles.indexOf("_admin") !== -1) {
+  if (userCtx.name == "irclog" || userCtx.roles.includes("_admin")) {
     return true;
   }
   throw({"forbidden": "You may not update documents"});
